@@ -1,66 +1,75 @@
 const router = require('express').Router();
-const { User,Project, usersToProjects } = require('../../models');
+const { User, Project, usersToProjects } = require('../../models');
 
-
+router.get('/', async (req, res) => {
+  try {
+    const projectData = await Project.findAll()
+    res.status(200).json(projectData)
+  } catch (err) {
+    res.status(500).json(err)
+  }
+})
 
 router.post('/', async (req, res) => {
-    console.log(req.body)
-    try {
-      const newProject = await Project.create({
-        ...req.body,
-        projectId: req.session.userId,
-        
-        
-      
-      });
-    
-      res.status(200).json(newProject);
-    } catch (err) {
-      res.status(400).json(err);
-    }
-  });
+  console.log(req.body)
+  try {
+    const newProject = await Project.create({
+      ...req.body,
+      projectId: req.session.userId,
 
-  
-    router.post('/UTR', async (req, res) => {
-      const userData = await User.findOne({ where: { first_name: req.body.user_id } });
-      const projectData = await Project.findOne({ where: { name: req.body.project_id } });
-console.log(userData)
-console.log(projectData)
 
-        try {
-          const newkey = await usersToProjects.create({
-            user_id:userData.id,
-            project_id:projectData.id,
-          })
-          
-          res.status(200).json(newkey);
-        } catch (err) {
-          res.status(400).json(err);
-        }
-      });
 
-      router.delete('/DTR', async(req, res)=>{
-        console.log(req.body.projectId)
-        console.log(req.session.user_id)
-        try {
-          const deleteRecord = await usersToProjects.destroy({
-          where: {
-            user_id: req.session.user_id,
-            project_id:req.body.projectId
-          }
-        })
+    });
 
-        res.status(200).json(deleteRecord);
-          
-        } catch (err) {
-          res.status(400).json(err);
-        }
-        
+    res.status(200).json(newProject);
+  } catch (err) {
+    res.status(400).json(err);
+  }
+});
 
-        
-      })
-  
-  
+
+router.post('/UTR', async (req, res) => {
+  // const userData = await User.findOne({ where: { first_name: req.body.user_id } });
+  // const projectData = await Project.findOne({ where: { name: req.body.project_id } });
+  // console.log(userData)
+  // console.log(projectData)
+
+  try {
+    const newkey = await usersToProjects.create({
+      // user_id: userData.id,
+      // project_id: projectData.id,
+      user_id: req.body.user_id,
+      project_id: req.body.project_id,
+    })
+
+    res.status(200).json(newkey);
+  } catch (err) {
+    res.status(400).json(err);
+  }
+});
+
+router.delete('/DTR', async (req, res) => {
+  console.log(req.body.projectId)
+  console.log(req.session.user_id)
+  try {
+    const deleteRecord = await usersToProjects.destroy({
+      where: {
+        user_id: req.session.user_id,
+        project_id: req.body.projectId
+      }
+    })
+
+    res.status(200).json(deleteRecord);
+
+  } catch (err) {
+    res.status(400).json(err);
+  }
+
+
+
+})
+
+
 
 
 

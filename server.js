@@ -7,6 +7,7 @@ const routes = require("./controllers");
 const helpers = require("./utils/helpers");
 const socketio = require("socket.io");
 const Filter = require("bad-words");
+const Sequelize = require('sequelize')
 const {
   generateMessage,
   generateLocationMessage,
@@ -28,13 +29,38 @@ const PORT = process.env.PORT || 3001;
 
 const hbs = exphbs.create({ helpers });
 
+
+
+// sequelize.define("sessions", {
+//   sid: {
+//     type: Sequelize.STRING,
+//     primaryKey: true,
+//   },
+//   userId: Sequelize.STRING,
+//   expires: Sequelize.DATE,
+//   data: Sequelize.TEXT,
+// });
+
+function extendDefaultFields(defaults, session) {
+  return {
+    data: defaults.data,
+    expires: defaults.expires,
+    userId: session.userId,
+  };
+}
+
+
 const sess = {
   secret: "Super secret secret",
-  cookie: {},
+  cookie: {
+    maxAge: 600000
+  },
   resave: false,
   saveUninitialized: true,
   store: new SequelizeStore({
     db: sequelize,
+    // table: "sessions",
+    extendDefaultFields: extendDefaultFields,
   }),
 };
 

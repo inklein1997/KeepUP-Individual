@@ -72,9 +72,6 @@ const assignMembersToProjectHandler = async (projectID) => {
         if (response1.ok) {
             console.log("member added")
         }
-
-
-
     })
 }
 
@@ -92,15 +89,7 @@ const createProjectHandler = async (e) => {
         })
         if(response.ok){
             assignMembersToProjectHandler(nextProjectID)
-            // document.location.replace('/users')
-
-
-
-
-
-
-
-
+            document.location.replace('/users')
         }else{
             alert('Failed to create project')
         }

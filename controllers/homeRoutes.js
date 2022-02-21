@@ -58,30 +58,55 @@ router.get("/project", async (req, res) => {
       include: [{ model: Task }],
       order: [["position", "ASC"]],
     });
-    // const taskData = await Task.findAll({ where: { list_id: 7 } });
-    const user = userData.get({ plain: true });
-    const lists = listData.map((list) => list.get({ plain: true }));
-    // const tasks = taskData.map((task) => task.get({ plain: true }));
-    console.log(lists);
-    console.log(user);
-    const project = user.projects
-    const title = project.find((pro)=>{
-      console.log(pro)
-     return pro.id === parseInt(num)
+    const projectData = await usersToProjects.findAll({
+      where: { project_id: num },
+      // include: [{model: User, attributes: {exclude:'password'}}]
     })
-    console.log(title)
-console.log(project)
-    const first = req.session.first_name.split("")[0];
-    res.render("project", {
-      lists,
-      ...user,
-      first,
-      title,
-      logged_in: true,
-    });
-  } catch (err) {
-    res.status(500).json(err);
+    let userIDs = projectData.map(project => project.get({ plain: true }))
+    let userIDsArray = userIDs.map(user => user.user_id)
+    console.log('=======================')
+    console.log(userIDsArray)
+    console.log('=======================')
+
+    const membersArray = []
+    
+    for (let i = 0; i<userIDsArray.length; i++) {
+      const usersData = await User.findByPk(userIDsArray[i], {
+        attributes: { exclude: 'password' }
+      })
+      let firstName = usersData.get({ plain: true }).first_name
+      let lastName = usersData.get({ plain: true }).last_name
+      membersArray.push(`${firstName} ${lastName}`)
+      // membersArray.push(`${firstName} ${lastName}`)
+      // console.log(membersArray)
   }
+    // console.log(membersArray)
+
+  // const taskData = await Task.findAll({ where: { list_id: 7 } });
+  const user = userData.get({ plain: true });
+  const lists = listData.map((list) => list.get({ plain: true }));
+  // const tasks = taskData.map((task) => task.get({ plain: true }));
+  // console.log(lists);
+  // console.log(user);
+  const project = user.projects
+  const title = project.find((pro) => {
+    // console.log(pro)
+    return pro.id === parseInt(num)
+  })
+  // console.log(title)
+  // console.log(project)
+  const first = req.session.first_name.split("")[0];
+  res.render("project", {
+    lists,
+    ...user,
+    first,
+    title,
+    logged_in: true,
+    membersArray,
+  });
+} catch (err) {
+  res.status(500).json(err);
+}
 });
 
 router.get("/login", async (req, res) => {
